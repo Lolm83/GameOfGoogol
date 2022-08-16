@@ -25,6 +25,7 @@ int main()
 	while (deck_size > 100 || deck_size < 1)
 	{
 		cout << "Invalid input, please try again. Enter a deck size between 1 and 100.\n\n";
+		deck_size = 0;
 		cin >> deck_size;
 	}
 
@@ -37,6 +38,7 @@ int main()
 	iter = deck.begin();
 	while (!gameover)
 	{
+		
 		cout << endl << endl << endl << endl;
 		cout << " Cards in deck: " << deck.size() - hits;
 		cout << "\n\n Cards burned: " << hits;
@@ -49,8 +51,11 @@ int main()
 		}
 
 		cout << "\n\n Highest Card Burned: " << highcard;
-		cout << "\n\n Top Card of the Deck: " << *(iter + 1);
-		
+
+		if (hits > 0)
+			cout << "\n\n Top Card of the Deck: " << *(iter + 1);
+		else cout << "\n\n Top Card of the Deck: " << *iter;
+
 		bool decided = false;
 		while (!decided)
 		{
@@ -72,8 +77,15 @@ int main()
 			}
 			else if (action == "STOP" || action == "stop")
 			{
-				guess = *(iter + 1);
-				cout << "\n\n You've selected number " << *(iter + 1) << " as your guess...";
+				if (hits == 0)
+					guess = *iter;
+				else 
+					guess = *(iter + 1);
+
+				if (hits == 0)
+					cout << "\n\n You've selected number " << *iter << " as your guess...";
+				else
+					cout << "\n\n You've selected number " << *(iter + 1) << " as your guess...";
 				decided = true;
 			}
 			else
@@ -82,10 +94,66 @@ int main()
 
 		cout << endl << endl;
 		if (guess != 0)
-		gameover = true;
+		{
+			gameover = true;
+
+			bool win = true;
+			for (iter = deck.begin(); iter != deck.end(); ++iter)
+			{
+				if (guess < *iter)
+				{
+					win = false;
+					guess = *iter;
+				}
+			}
+			if (win)
+				cout << "\n\n You WIN! " << guess << " was the highest number in the deck!";
+			else
+				cout << "\n\n You LOSE... " << guess << " was the highest number in the deck!";
+
+			char again;
+			cout << "\n\n Would you like to play again? [y]es [n]o ";
+			cin >> again;
+
+			while (again != 'y' && again != 'n')
+			{
+				cout << "\n\n Invalid input, please try again. Enter a deck size between 1 and 100.\n\n";
+				again = 'e';
+				cin >> again;
+			}
+
+			if (again == 'y')
+			{
+				guess = 0;
+				hits = 0;
+				highcard = 0;
+				deck.clear();
+
+				cout << "\nPlease enter a deck size between 1 and 100. \n\n";
+					cin >> deck_size;
+
+				while (deck_size > 100 || deck_size < 1)
+				{
+					cout << "Invalid input, please try again. Enter a deck size between 1 and 100.\n\n";
+					deck_size = 0;
+					cin >> deck_size;
+				}
+
+				srand(time(0));
+				SetDeck(deck_size, &deck, iter);
+				iter = deck.begin();
+				gameover = false;
+			}
+			else
+				cout << "\n\n Thanks for playing! Press Any button to close the app.";	
+		}
 	}
 
-	// Scoring / Winning! 
+	
+
+		
+		
+
 }
 
 void SetDeck(u32 size, vector<int>* deck, vector<int>::iterator iter)
